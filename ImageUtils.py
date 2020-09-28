@@ -57,7 +57,7 @@ def preprocess_image(image, training):
 		### YOUR CODE HERE
 		# Randomly flip the image horizontally.
 		# image = tf.image.random_flip_left_right(image)
-		if np.random.randint(2) == 0 :
+		if np.random.randint(2) == 0:
 			image = np.fliplr(image)
 
 		### END CODE HERE

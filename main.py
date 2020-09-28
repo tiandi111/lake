@@ -47,5 +47,5 @@ def main(_):
 	### END CODE HERE
 
 if __name__ == '__main__':
-	os.environ['CUDA_VISIBLE_DEVICES'] = '9'
+	# os.environ['CUDA_VISIBLE_DEVICES'] = '9'
 	tf.app.run()

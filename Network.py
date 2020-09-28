@@ -92,7 +92,7 @@ class ResNet(object):
 		
 		### YOUR CODE HERE
 		# initial conv1
-		outputs = tf.layers.conv2d(inputs, self.first_num_filters, (1, 1), padding='same', strides=(1, 1), trainable=training)
+		outputs = tf.layers.conv2d(inputs, self.first_num_filters, (1, 1), padding='same', strides=(1, 1))
 
 		### END CODE HERE
 
@@ -152,7 +152,7 @@ class ResNet(object):
 
 		def projection_shortcut(inputs):
 			### YOUR CODE HERE
-			 return tf.layers.conv2d(inputs, filters_out, (1, 1), padding='same', strides=(strides, strides), trainable=training)
+			 return tf.layers.conv2d(inputs, filters_out, (1, 1), padding='same', strides=(strides, strides))
 
 			### END CODE HERE
 
@@ -195,9 +195,9 @@ class ResNet(object):
 			### END CODE HERE
 
 		### YOUR CODE HERE
-		outputs = tf.layers.conv2d(inputs, filters, (3, 3),  padding='same', strides=(strides, strides), trainable=training)
+		outputs = tf.layers.conv2d(inputs, filters, (3, 3),  padding='same', strides=(strides, strides))
 		outputs = self._batch_norm_relu(outputs, training=training)
-		outputs = tf.layers.conv2d(outputs, filters, (3, 3), padding='same', strides=(1, 1), trainable=training)
+		outputs = tf.layers.conv2d(outputs, filters, (3, 3), padding='same', strides=(1, 1))
 		outputs = tf.layers.batch_normalization(outputs, training=training)
 		outputs = tf.nn.relu(outputs + shortcut)
 		### END CODE HERE
@@ -227,11 +227,11 @@ class ResNet(object):
 		if projection_shortcut is not None:
 			shortcut = projection_shortcut(inputs)
 		outputs = self._batch_norm_relu(inputs, training=training)
-		outputs = tf.layers.conv2d(outputs, filters/4, (1, 1), padding='same', strides=(strides, strides), trainable=training)
+		outputs = tf.layers.conv2d(outputs, filters/4, (1, 1), padding='same', strides=(strides, strides))
 		outputs = self._batch_norm_relu(outputs, training=training)
-		outputs = tf.layers.conv2d(outputs, filters/4, (3, 3), padding='same', strides=(1, 1), trainable=training)
+		outputs = tf.layers.conv2d(outputs, filters/4, (3, 3), padding='same', strides=(1, 1))
 		outputs = self._batch_norm_relu(outputs, training=training)
-		outputs = tf.layers.conv2d(outputs, filters, (1, 1), padding='same', strides=(1, 1), trainable=training) + shortcut
+		outputs = tf.layers.conv2d(outputs, filters, (1, 1), padding='same', strides=(1, 1)) + shortcut
 		### END CODE HERE
 
 		return outputs

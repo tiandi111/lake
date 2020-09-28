@@ -94,7 +94,7 @@ class Cifar(object):
             # Set the learning rate for this epoch
             # Usage example: divide the initial learning rate by 10 after several epochs
             learning_rate = 0.1 ** (epoch/20+1)
-
+            accs = []
             ### END CODE HERE
 
             loss_value = []
@@ -116,7 +116,7 @@ class Cifar(object):
                 loss, _, preds = self.sess.run(
                             [self.losses, self.train_op, self.preds], feed_dict=feed_dict)
                 preds = np.array(preds).reshape(y_batch.shape)
-                print('Test accuracy: {:.4f}'.format(np.sum(preds == y_batch) / y_batch.shape[0]))
+                accs.append(np.sum(preds == y_batch) / y_batch.shape[0])
 
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss),
                         end='\r', flush=True)
@@ -124,6 +124,7 @@ class Cifar(object):
             duration = time.time() - start_time
             print('Epoch {:d} Loss {:.6f} Duration {:.3f} seconds.'.format(
                         epoch, loss, duration))
+            print("Test accuracy:\n", np.mean(accs))
 
             if epoch % self.conf.save_interval == 0:
                 self.save(self.saver, epoch)
@@ -144,7 +145,7 @@ class Cifar(object):
             for i in tqdm(range(x.shape[0])):
                 ### YOUR CODE HERE
                 src = parse_record(x[i], False).reshape((1, 32, 32, 3))
-                preds.append(self.sess.run(self.preds, feed_dict={self.inputs:src}))
+                preds.append(self.sess.run(self.preds, feed_dict={self.inputs: src}))
                 ### END CODE HERE
 
             preds = np.array(preds).reshape(y.shape)
