@@ -37,6 +37,7 @@ def main(_):
 	model.train(x_train_new, y_train_new, 200)
 	model.test_or_validate(x_valid, y_valid, [160, 170, 180, 190, 200])
 
+
 	# Second step: with hyperparameters determined in the first run, re-train
 	# your model on the original train set.
 	# model.train(x_train, y_train, ?)

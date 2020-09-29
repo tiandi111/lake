@@ -41,11 +41,14 @@ class Cifar(object):
 
             ### YOUR CODE HERE
             #cross entropy
-            cross_entropy_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=self.labels)
+            cross_entropy_loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=self.labels))
 
             # final loss function
-            losses = l2_loss + cross_entropy_loss
-            self.losses = tf.reduce_mean(losses)
+            self.losses = l2_loss + cross_entropy_loss
+            tf.summary.scalar('loss', self.losses)
+            tf.summary.scalar('l2_loss', tf.convert_to_tensor(l2_loss))
+            tf.summary.scalar('cross_entropy_loss', cross_entropy_loss)
+            tf.summary.scalar('learning rate', self.learning_rate)
             ### END CODE HERE
 
             # momentum optimizer with momentum=0.9
@@ -56,6 +59,7 @@ class Cifar(object):
             # train_op
             grad_var_pairs = optimizer.compute_gradients(loss=self.losses, var_list=tf.trainable_variables())
             self.train_op = optimizer.apply_gradients(grads_and_vars=grad_var_pairs)
+            self.summary_op = tf.summary.merge_all()
             ### END CODE HERE
 
             print('---Setup the Saver for saving models...')
@@ -82,6 +86,7 @@ class Cifar(object):
         num_batches = int(num_samples / self.conf.batch_size)
 
         print('---Run...')
+        summary_writer = tf.summary.FileWriter('./tmp/log', self.sess.graph)
         for epoch in range(1, max_epoch+1):
 
             start_time = time.time()
@@ -93,8 +98,7 @@ class Cifar(object):
             ### YOUR CODE HERE
             # Set the learning rate for this epoch
             # Usage example: divide the initial learning rate by 10 after several epochs
-            learning_rate = 0.001 ** (epoch/10+1)
-            accs = []
+            learning_rate = 0.001 * (0.1 ** (epoch/10+1))
             ### END CODE HERE
 
             loss_value = []
@@ -113,8 +117,9 @@ class Cifar(object):
                 feed_dict = {self.inputs: x_batch,
                             self.labels: y_batch,
                             self.learning_rate: learning_rate}
-                loss, _, _ = self.sess.run(
-                            [self.losses, self.train_op, extra_update_ops], feed_dict=feed_dict)
+                loss, _, _, summ = self.sess.run(
+                            [self.losses, self.train_op, extra_update_ops, self.summary_op], feed_dict=feed_dict)
+                summary_writer.add_summary(summ, global_step=epoch*num_batches+i)
 
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss),
                         end='\r', flush=True)
@@ -122,6 +127,7 @@ class Cifar(object):
             duration = time.time() - start_time
             print('Epoch {:d} Loss {:.6f} Duration {:.3f} seconds.'.format(
                         epoch, loss, duration))
+            summary_writer.flush()
 
             if epoch % self.conf.save_interval == 0:
                 self.save(self.saver, epoch)
