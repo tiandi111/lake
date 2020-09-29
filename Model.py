@@ -93,7 +93,7 @@ class Cifar(object):
             ### YOUR CODE HERE
             # Set the learning rate for this epoch
             # Usage example: divide the initial learning rate by 10 after several epochs
-            learning_rate = 0.001 ** (epoch/20+1)
+            learning_rate = 0.001 ** (epoch/10+1)
             accs = []
             ### END CODE HERE
 
@@ -106,17 +106,15 @@ class Cifar(object):
                 end = st + self.conf.batch_size
                 x_batch = [parse_record(x, True) for x in curr_x_train[st : end]]
                 y_batch = curr_y_train[st : end]
-
+                extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
                 ### END CODE HERE
 
                 # Run
                 feed_dict = {self.inputs: x_batch,
                             self.labels: y_batch,
                             self.learning_rate: learning_rate}
-                loss, _, preds = self.sess.run(
-                            [self.losses, self.train_op, self.preds], feed_dict=feed_dict)
-                preds = np.array(preds).reshape(y_batch.shape)
-                accs.append(np.sum(preds == y_batch) / y_batch.shape[0])
+                loss, _, _ = self.sess.run(
+                            [self.losses, self.train_op, extra_update_ops], feed_dict=feed_dict)
 
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss),
                         end='\r', flush=True)
@@ -124,7 +122,6 @@ class Cifar(object):
             duration = time.time() - start_time
             print('Epoch {:d} Loss {:.6f} Duration {:.3f} seconds.'.format(
                         epoch, loss, duration))
-            print("Test accuracy:\n", np.mean(accs))
 
             if epoch % self.conf.save_interval == 0:
                 self.save(self.saver, epoch)
